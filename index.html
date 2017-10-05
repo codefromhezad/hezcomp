@@ -1,0 +1,26 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>HezComp Emulator</title>
+</head>
+<body>
+	
+	<div id="screen">
+
+	</div>
+
+
+	<script src="screen.js"></script>
+	<script src="arch_templates.js"></script>
+	<script src="hezcomp.js"></script>
+	<script>
+		HezComp.init(HezCompTemplate_CHIP8);
+
+		/* @TODO;
+		 * - Wrap HezComp.emulate_cycle in a loop
+		 * - Check HezComp.emulate_cycle
+		 * - Implement CHIP-8 opcodes in arch_templates.js
+		 */
+	</script>
+</body>
+</html>
