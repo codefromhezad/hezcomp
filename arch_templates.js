@@ -47,6 +47,10 @@ window.HezCompTemplate_CHIP8 = {
 			},
 
 			process_opcode: function(system_runtime, opcode) {
+				if( opcode === null || opcode === undefined ) {
+					HezComp.handle_error(HezCompErrorStatus.FATAL, "NULL or undefined opcode. Can't process.");
+				}
+
 				switch(opcode & 0xF000) {
 					case 0xA000: // ANNN: Sets I to the address NNN
 					    system_runtime.registers.I = opcode & 0x0FFF;
@@ -54,7 +58,7 @@ window.HezCompTemplate_CHIP8 = {
 					    break;
 
 					default:
-						HezComp.throw_error(HezComp.STATUS_WARNING, "Unknown opcode: 0x" + HezComp.intToHex(opcode));
+						HezComp.handle_error(HezCompErrorStatus.WARNING, "Unknown opcode: 0x" + HezComp.intToHex(opcode));
 				}
 			}
 		},
@@ -91,6 +95,8 @@ window.HezCompTemplate_CHIP8 = {
 				system_runtime.registers.PC = 0x200;
 				system_runtime.registers.I = 0;
 				system_runtime.registers.SP = 0;
+				system_runtime.registers.delay_timer = 0;
+				system_runtime.registers.sound_timer = 0;
 				system_runtime.opcode = 0;
 			},
 

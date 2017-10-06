@@ -4,7 +4,7 @@ var Screen = function(dom_el_id, resolution, color_depth, pixelSize) {
 	this.pixelSize = pixelSize;
 	this.dom_el_id = dom_el_id;
 	this.color_depth = color_depth;
-
+	
 	this.pixels = new Array();
 
 	this.backColor = "#ccc";

@@ -2,6 +2,17 @@
 <head>
 	<meta charset="utf-8">
 	<title>HezComp Emulator</title>
+
+	<!-- TEMP STYLE FOR HEZCOMP DEBUG CONTAINER. @TODO: GENERATE IT FROM JS -->
+	<style>
+		#hezcomp-debug-container {
+			position: fixed;
+			right: 0;
+			width: 40%;
+			top: 0;
+			height: 100%;
+		}
+	</style>
 </head>
 <body>
 	
@@ -9,12 +20,24 @@
 
 	</div>
 
+	<!--  @TODO
+	<div id="system-control">
+		<a href="#" id="sys-ctl-run">Run</a>
+		<a href="#" id="sys-ctl-pause">Pause</a>
+		<a href="#" id="sys-ctl-stop">Pause</a>
+	</div>
+ 	-->
+
+ 	<!-- @TODO also: Add "next cycle" and "prev cycle" buttons to control CPU operations cycle by cycle -->
 
 	<script src="screen.js"></script>
 	<script src="arch_templates.js"></script>
 	<script src="hezcomp.js"></script>
 	<script>
-		HezComp.init(HezCompTemplate_CHIP8);
+
+		HezComp.debug_mode(true);
+		HezComp.load_template(HezCompTemplate_CHIP8);
+		HezComp.system_run();
 
 		/* @TODO;
 		 * - Wrap HezComp.emulate_cycle in a loop
