@@ -1,0 +1,72 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: Helvetica, Arial, Verdana, Sans;
+	font-size: 14px;
+}
+
+#hezcomp-debug-container {
+	position: fixed;
+	right: 0;
+	width: 500px;
+	top: 0;
+	height: 100%;
+	background: #eee;
+	border-left: 1px solid #d2d2d2;
+}
+
+#hezcomp-debug-container .hezcomp-debug-title {
+	line-height: 60px;
+    text-align: center;
+    font-size: 24px;
+    text-transform: uppercase;
+    font-weight: bold;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    color: rgba(0,0,0,0.2);
+}
+
+#hezcomp-debug-container #hezcomp-debug-log-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 60px;
+	overflow-y: auto;
+}
+
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item {
+    border-bottom: 1px solid #d2d2d2;
+    font-size: 12px;
+    overflow: hidden;
+    padding: 5px;
+}
+
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item.log-type-error { background: #f0d5d6; color: #7a0e10; }
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item.log-type-warn { background: #f0e5c1; color: #775f0f; }
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item.log-type-info { background: #dbecef;color: #094e5a; }
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item.log-type-log { background: #f3f3f3; color: #1e1e1e; }
+
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item > * {
+	display: block;
+    float: left;
+    box-sizing: border-box;
+    line-height: 20px;
+}
+
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item .fa {
+	margin-right: 5px;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item .msg {
+	width: 90%;
+}
+
+#hezcomp-debug-container #hezcomp-debug-log-container .hezcomp-debug-log-item .num {
+	font-weight: bold;
+    margin-right: 5px;
+}

@@ -47,6 +47,8 @@
 
 		debug_dom_container: null,
 		debug_dom_els: {},
+		debug_same_following_errors_num: 0,
+		debug_last_error: {},
 		failsafe_start_cycle_value: null,
 		failsafe_num_errors_value: 0,
 
@@ -80,39 +82,73 @@
 		/**
 	 	* ERROR HANDLER
 		**/
+		kill: function(message) {
+			throw new Error(message);
+		},
+
 		handle_error: function(error_code, error_message) {
 			var console_method = "log";
 			var error_desc = "info";
+			var fa_class = "fa-comment";
 
-			try {
-				switch( error_code ) {
-					case HezCompErrorStatus.FATAL:
-						console_method = "error";
-						error_desc = "Fatal error";
-						break;
-					case HezCompErrorStatus.WARNING:
-						console_method = "warn";
-						error_desc = "Warning";
-						break;
-					case HezCompErrorStatus.INFO:
-						console_method = "info";
-						error_desc = "Info";
-						break;
-					default:
-						console_method = "log";
-						error_desc = "Unkown error";
-				}
-			} finally {
-				if( error_code >= HezComp.MIN_ERROR_LEVEL_FOR_FAILSAFE_LOG ) {
-					HezComp.failsafe_num_errors_value += 1;
-				}
-
+			if( ! HezComp.DEBUG_IS_ACTIVE ) {
 				if( error_code >= HezComp.MIN_ERROR_LEVEL_FOR_ABORT ) {
 					throw new Error(error_desc+": "+error_message);
-				} else {
-					console[console_method](error_desc+": "+error_message);
 				}
+
+				return;
 			}
+
+			switch( error_code ) {
+				case HezCompErrorStatus.FATAL:
+					console_method = "error";
+					error_desc = "Fatal error";
+					fa_class = "fa-times";
+					break;
+				case HezCompErrorStatus.WARNING:
+					console_method = "warn";
+					error_desc = "Warning";
+					fa_class = "fa-exclamation-triangle";
+					break;
+				case HezCompErrorStatus.INFO:
+					console_method = "info";
+					error_desc = "Info";
+					fa_class = "fa-info-circle";
+					break;
+				default:
+					console_method = "log";
+					error_desc = "Unkown error";
+					fa_class = "fa-comment";
+			}
+
+			if( error_code >= HezComp.MIN_ERROR_LEVEL_FOR_FAILSAFE_LOG ) {
+				HezComp.failsafe_num_errors_value += 1;
+			}
+
+			var log_wrapper = HezComp.debug_dom_els.log_container;
+
+			if( HezComp.debug_last_error && HezComp.debug_last_error.console_method == console_method && HezComp.debug_last_error.error_message == error_message ) {
+				HezComp.debug_same_following_errors_num += 1;
+			} else {
+				HezComp.debug_same_following_errors_num == 0;
+			}
+
+			if( HezComp.debug_same_following_errors_num > 0 ) {
+				var num_elm = document.querySelector('#hezcomp-debug-log-container .hezcomp-debug-log-item:last-child .num');
+				num_elm.innerHTML = '['+ (HezComp.debug_same_following_errors_num + 1) +']';
+			} else {
+				log_wrapper.innerHTML += '<div class="hezcomp-debug-log-item log-type-'+console_method+'"><i class="fa '+fa_class+' fa-fw" aria-hidden="true"></i><span class="msg">'+error_message+'<span class="num"></span></span></div>';
+			}
+			
+			if( error_code >= HezComp.MIN_ERROR_LEVEL_FOR_ABORT ) {
+				log_wrapper.innerHTML += '<div class="hezcomp-debug-log-item log-type-'+console_method+'"><i class="fa '+fa_class+' fa-fw" aria-hidden="true"></i><span class="msg">'+error_message+'<span class="num"></span></span></div>';
+				HezComp.kill(error_message);
+			}
+
+			HezComp.debug_last_error = {
+				console_method: console_method,
+				error_message: error_message
+			};
 		},
 
 
@@ -121,29 +157,27 @@
 		/**
 	 	* DEBUG STUFF
 		**/
+
 		debug_mode: function(set_mode) {
 			HezComp.DEBUG_IS_ACTIVE = set_mode;
 
 			if( HezComp.DEBUG_IS_ACTIVE && (! HezComp.debug_dom_container) ) {
 
-				HezComp.handle_error(HezCompErrorStatus.WARNING, 'Debug mode has a huge (negative) impact on performances. Consider deactivate it to test your architecture performance in realistic conditions');
-				
 				var body_el = document.querySelector('body');
 
 				body_el.innerHTML += '<div id="hezcomp-debug-container">' +
-					'<div class="hezcomp-debug-item">'+
-						'ARCH Name: <span id="hezcomp-debug-arch-name"></span>' +
-					'</div>' +
-					'<div class="hezcomp-debug-item">'+
-						'CPU Cycle: <span id="hezcomp-debug-cpu-cycle-value"></span>' +
-					'</div>' +
+					'<div class="hezcomp-debug-title">Debug/Log</div>'+
+					'<div id="hezcomp-debug-log-container"></div>'+
 				'</div>';
 				
 				HezComp.debug_dom_container = document.getElementById('hezcomp-debug-container');
 				HezComp.debug_dom_els = {
-					arch_name: document.getElementById('hezcomp-debug-arch-name'),
-					cpu_cycle_value: document.getElementById('hezcomp-debug-cpu-cycle-value'),
+					log_container: document.getElementById('hezcomp-debug-log-container'),
 				}
+
+				HezComp.debug_same_following_errors_num = 0;
+				HezComp.debug_last_error = {};
+				HezComp.handle_error(HezCompErrorStatus.LOG, 'Debug mode has a huge (negative) impact on performances. Consider deactivate it to test your architecture performance in realistic conditions');
 			}
 		},
 
@@ -241,11 +275,7 @@
 	 	* EMULATION LIFECYCLE METHODS
 		**/
 		emulate_cycle: function(delta_timer) {
-			if( HezComp.DEBUG_IS_ACTIVE ) {
-				HezComp.debug_dom_els.cpu_cycle_value.innerHTML = HezComp.current_cpu_cycle_value;
-			}
 			HezComp.current_cpu_cycle_value += 1;
-			
 
 			if( HezComp.failsafe_start_cycle_value === null ) {
 				HezComp.failsafe_start_cycle_value = HezComp.current_cpu_cycle_value;
@@ -276,9 +306,7 @@
 		},
 
 		start_emulation_loop: function() {
-			if( HezComp.DEBUG_IS_ACTIVE ) {
-				HezComp.debug_dom_els.arch_name.innerHTML = HezComp.system_name;
-			}
+			HezComp.handle_error(HezCompErrorStatus.INFO, "System name: " + HezComp.system_name);
 
 			var start_time = null;
 			var cycle_step = function(timestamp) {
