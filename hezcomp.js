@@ -257,14 +257,6 @@
 				HezComp.system_runtime.graphics.screen.init();
 			}
 
-
-
-			// call load callback
-			if( HezComp.system_template.listeners && HezComp.system_template.listeners.on_load ) {
-				HezComp.system_template.listeners.on_load(HezComp.system_runtime);
-			}
-
-
 			
 		},
 
@@ -274,6 +266,27 @@
 		/**
 	 	* EMULATION LIFECYCLE METHODS
 		**/
+		load_rom: function(file_path) {
+			var oReq = new XMLHttpRequest();
+			oReq.open("GET", file_path, true);
+			oReq.overrideMimeType("text/plain; charset=x-user-defined");
+			// oReq.responseType = "arraybuffer";
+
+			/* @TODO: Handle request errors */
+			oReq.onload = function (oEvent) {
+				var binary_string = oReq.response; // Note: not oReq.responseText
+				
+				if (binary_string) {
+					HezComp.system_template.arch_functions.load_binary_data(HezComp.system_runtime, binary_string);
+					HezComp.system_run();
+				} else {
+					HezComp.handle_error(HezCompErrorStatus.FATAL, "Can't find any binary data in file '"+file_path+"'");
+				}
+			};
+
+			oReq.send();
+		},
+
 		emulate_cycle: function(delta_timer) {
 			HezComp.current_cpu_cycle_value += 1;
 
@@ -281,11 +294,9 @@
 				HezComp.failsafe_start_cycle_value = HezComp.current_cpu_cycle_value;
 				HezComp.failsafe_num_errors_value = 0;
 			}
-
-			var opcode = HezComp.system_template.cycle_functions.get_current_opcode(HezComp.system_runtime);
 			
 			// Process cycle
-			HezComp.system_template.cycle_functions.process_opcode(HezComp.system_runtime, opcode);
+			HezComp.system_template.arch_functions.process_cycle(HezComp.system_runtime);
 
 
 			// call after_cycle callback
